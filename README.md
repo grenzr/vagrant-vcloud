@@ -47,10 +47,10 @@ Here's a sample Multi-VM Vagrantfile, please note that ```vcloud.vdc_edge_gatewa
 precise32_vm_box_url = "http://vagrant.tsugliani.fr/precise32.box"
 
 nodes = [
-  { :hostname => "web-vm",  :box => "precise32", :box_url => precise32_vm_box_url},
-  { :hostname => "ssh-vm",  :box => "precise32" , :box_url => precise32_vm_box_url},
+  { :hostname => "web-vm",  :box => "precise32", :box_url => precise32_vm_box_url },
+  { :hostname => "ssh-vm",  :box => "precise32", :box_url => precise32_vm_box_url },
   { :hostname => "sql-vm",  :box => "precise32", :box_url => precise32_vm_box_url },
-  { :hostname => "lb-vm",  :box => "precise64", :box_url => precise32_vm_box_url },
+  { :hostname => "lb-vm",   :box => "precise64", :box_url => precise32_vm_box_url },
   { :hostname => "app-vm",  :box => "precise32", :box_url => precise32_vm_box_url },
 ]
 
