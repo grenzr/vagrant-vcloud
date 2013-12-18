@@ -15,11 +15,10 @@ module VagrantPlugins
           cfg = env[:machine].provider_config
           cnx = cfg.vcloud_cnx.driver
 
-          vAppId = env[:machine].get_vapp_id
           vmId = env[:machine].id
           vmName = env[:machine].name
 
-          env[:ui].info("Powering off VM...")
+          env[:ui].info("Powering off VM #{vmName}...")
           task_id = cnx.poweroff_vm(vmId)
           wait = cnx.wait_task_completion(task_id)
           

@@ -27,12 +27,12 @@ module VagrantPlugins
     module Driver
 
       # Main class to access vCloud rest APIs
-      class Version_5_1 < Base
+      class Version_5_5 < Base
         attr_reader :auth_key, :id
         
         def initialize(host, username, password, org_name)
 
-          @logger = Log4r::Logger.new("vagrant::provider::vcloud::driver_5_1")
+          @logger = Log4r::Logger.new("vagrant::provider::vcloud::driver_5_5")
 
           @host = host
           @api_url = "#{host}/api"
@@ -40,7 +40,7 @@ module VagrantPlugins
           @username = username
           @password = password
           @org_name = org_name
-          @api_version = "5.1"
+          @api_version = "5.5"
           @id = nil
         end
 

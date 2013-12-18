@@ -26,9 +26,7 @@ module Vagrant
 
       # The file that will store the id if we have one. This allows the
       # ID to persist across Vagrant runs.
-
       id_file = @data_dir.join("../../../vcloud_vappid")
-
       ### this should be ./.vagrant/vcloud_vappid
 
       if value

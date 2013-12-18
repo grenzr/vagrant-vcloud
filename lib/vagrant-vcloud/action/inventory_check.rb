@@ -43,7 +43,12 @@ module VagrantPlugins
           )
 
           env[:ui].info("Adding [#{env[:machine].box.name.to_s}] to Catalog [#{cfg.catalog_name}]")
-          cnx.wait_task_completion(uploadOVF)
+          addOVFtoCatalog = cnx.wait_task_completion(uploadOVF)
+
+          if !addOVFtoCatalog[:errormsg].nil?
+            raise Errors::CatalogAddError, :message => addOVFtoCatalog[:errormsg]
+          end
+
           ## Retrieve catalog_item ID
           cfg.catalog_item = cnx.get_catalog_item_by_name(cfg.catalog_id, env[:machine].box.name.to_s)
 
@@ -53,7 +58,12 @@ module VagrantPlugins
           cfg = env[:machine].provider_config
           cnx = cfg.vcloud_cnx.driver
 
-          catalogCreation = cnx.create_catalog(cfg.org_id, cfg.catalog_name, "Created by #{Etc.getlogin} running on #{Socket.gethostname.downcase} using vagrant-vcloud on #{Time.now.strftime("%B %d, %Y")}")
+          catalogCreation = cnx.create_catalog(
+            cfg.org_id, 
+            cfg.catalog_name, 
+            "Created by #{Etc.getlogin} running on #{Socket.gethostname.downcase}"\ 
+            "using vagrant-vcloud on #{Time.now.strftime("%B %d, %Y")}"
+          )
           cnx.wait_task_completion(catalogCreation[:task_id])
 
           @logger.debug("Catalog Creation result: #{catalogCreation.inspect}")
@@ -88,7 +98,8 @@ module VagrantPlugins
             env[:ui].warn("Catalog [#{cfg.catalog_name}] does not exist!")
 
             user_input = env[:ui].ask(
-              "Would you like to create the [#{cfg.catalog_name}] catalog?\nChoice (yes/no): "
+              "Would you like to create the [#{cfg.catalog_name}] catalog?\n"\
+              "Choice (yes/no): "
             )
 
             # FIXME: add an OR clause for just Y
@@ -99,7 +110,6 @@ module VagrantPlugins
 
               raise VagrantPlugins::VCloud::Errors::VCloudError, 
                     :message => "Catalog not available, exiting..."
-
             end
           end
 

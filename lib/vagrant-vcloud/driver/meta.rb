@@ -50,12 +50,15 @@ module VagrantPlugins
 
           # Instantiate the proper version driver for vCloud
           @logger.debug("Finding driver for vCloud version: #{@version}")
-          driver_map   = {
-            "5.1" => Version_5_1
+          driver_map = {
+            "5.1" => Version_5_1,
+            "5.5" => Version_5_5
           }
 
-          if @version.start_with?("0.9") || @version.start_with?("1.0") || @version.start_with?("1.5")
-            # We support only vCloud Director 5.1 or higher so show error.
+          if @version.start_with?("0.9") || 
+             @version.start_with?("1.0") || 
+             @version.start_with?("1.5")
+            # We only support vCloud Director 5.1 or higher so show error.
             raise Errors::VCloudOldVersion, :version => @version
           end
 
@@ -123,11 +126,18 @@ module VagrantPlugins
 
           request = RestClient::Request.new(
             :method => "GET",
-            :url => "#{host_url}/api/versions"
+            :url => "#{host_url}/api/versions",
+            :headers => { 
+              # FIX the default headers: 
+              # Accept: 'application/xml,*/*; q=0.5'
+              # vCloud Director 5.5 throws a 500 Internal Server Error
+              :accept => 'text/xml' 
+            }, 
           )
-          
+        
           begin
             response = request.execute
+
             if ![200, 201, 202, 204].include?(response.code)
               puts "Warning: unattended code #{response.code}"
             end
@@ -141,7 +151,7 @@ module VagrantPlugins
           apiVersion.last.text
 
           rescue SocketError, Errno::ECONNREFUSED, RestClient::ResourceNotFound
-            raise Errors::HostNotFound, :message => host_url
+            raise Errors::HostNotFound, :message => host_url 
           end
 
         end

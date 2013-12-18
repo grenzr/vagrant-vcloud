@@ -288,14 +288,14 @@ module VagrantPlugins
             end
 
             # FIXME: get rid of RestClient and switch everything to HTTPClient, easier to use and we get rid of another dependency.
-
-            request = RestClient::Request.new(:method => params['method'],
-                                             :user => "#{@username}@#{@org_name}",
-                                             :password => @password,
-                                             :headers => headers,
-                                             :url => "#{@api_url}#{params['command']}",
-                                             :payload => payload)
-
+            request = RestClient::Request.new(
+              :method => params['method'],
+              :user => "#{@username}@#{@org_name}",
+              :password => @password,
+              :headers => headers,
+              :url => "#{@api_url}#{params['command']}",
+              :payload => payload
+            )
 
             begin
               response = request.execute
@@ -324,6 +324,8 @@ module VagrantPlugins
                 raise Errors::InvalidStateError, :message => "Invalid request because vApp is stopped. Start vApp '#{$1}' and try again."
               when /The administrator password cannot be empty when it is enabled and automatic password generation is not selected/
                 raise Errors::InvalidConfigError
+              when /The reference "(.*)" cannot be parsed correctly/   # FIXME: doesn't work
+                raise Errors::InvalidNetSpecification
               else
                 raise UnhandledError, "BadRequest - unhandled error: #{message}.\nPlease report this issue."
               end
@@ -350,7 +352,7 @@ module VagrantPlugins
             # Set progress bar to default format if not specified otherwise
             progressBarFormat = (config[:progressbar_format] || "%t Progress: %p%% %e")
 
-            # Set progress bar length to 120 if not specified otherwise
+            # Set progress bar length to 80 if not specified otherwise
             progressBarLength = (config[:progressbar_length] || 80)
 
             # Open our file for upload
@@ -362,11 +364,11 @@ module VagrantPlugins
             # Create a progressbar object if progress bar is enabled
             if config[:progressbar_enable] == true && uploadFileHandle.size.to_i > chunkSize
               progressbar = ProgressBar.create(
-                :title => progressBarTitle,
-                :starting_at => 0,
-                :total => uploadFileHandle.size.to_i,
-                ##:length => progressBarLength,
-                :format => progressBarFormat
+                :title        => progressBarTitle,
+                :starting_at  => 0,
+                :total        => uploadFileHandle.size.to_i,
+                #:length      => progressBarLength,
+                :format       => progressBarFormat
               )
             else
               puts progressBarTitle
@@ -375,10 +377,10 @@ module VagrantPlugins
             clnt = HTTPClient.new
 
             # Disable SSL cert verification
-            clnt.ssl_config.verify_mode=(OpenSSL::SSL::VERIFY_NONE)
+            clnt.ssl_config.verify_mode = (OpenSSL::SSL::VERIFY_NONE)
 
             # Suppress SSL depth message
-            clnt.ssl_config.verify_callback=proc{ |ok, ctx|; true };
+            clnt.ssl_config.verify_callback = proc{ |ok, ctx|; true };
 
             # Perform ranged upload until the file reaches its end
             until uploadFileHandle.eof?
@@ -401,9 +403,9 @@ module VagrantPlugins
 
               # Build headers
               extheader = {
-                'x-vcloud-authorization' => @auth_key,
-                'Content-Range' => contentRange,
-                'Content-Length' => rangeLen.to_s
+                'x-vcloud-authorization'  => @auth_key,
+                'Content-Range'           => contentRange,
+                'Content-Length'          => rangeLen.to_s
               }
 
               begin
@@ -418,7 +420,7 @@ module VagrantPlugins
                   response, headers = send_request(params)
 
                   response.css("Files File [name='#{fileName}']").each do |file|
-                    progressbar.progress=file[:bytesTransferred].to_i
+                    progressbar.progress = file[:bytesTransferred].to_i
                   end
                 end
               rescue # FIXME: HUGE FIXME!!!! DO SOMETHING WITH THIS, IT'S JUST STUPID AS IT IS NOW!!!
@@ -430,7 +432,6 @@ module VagrantPlugins
             end
             uploadFileHandle.close
           end
-
 
           ##
           # Convert vApp status codes into human readable description

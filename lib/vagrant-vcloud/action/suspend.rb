@@ -15,11 +15,10 @@ module VagrantPlugins
           cfg = env[:machine].provider_config
           cnx = cfg.vcloud_cnx.driver
 
-          vAppId = env[:machine].get_vapp_id
           vmId = env[:machine].id
           vmName = env[:machine].name
 
-          env[:ui].info("Suspending VM #{vmName} with id #{vmId} in vApp Id #{vAppId}")
+          env[:ui].info("Suspending VM #{vmName}...")
           task_id = cnx.suspend_vm(vmId)
           wait = cnx.wait_task_completion(task_id)
 

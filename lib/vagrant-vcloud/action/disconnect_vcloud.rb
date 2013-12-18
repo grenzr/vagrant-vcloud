@@ -26,8 +26,6 @@ module VagrantPlugins
             #raise a properly namespaced error for Vagrant
             raise Errors::VCloudError, :message => e.message
           end
-
-          @app.call env
         end
       end
     end
